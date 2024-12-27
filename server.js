@@ -5,6 +5,8 @@ const sqlite3 = require('sqlite3').verbose();
 const mongoose = require('mongoose');
 const { Pool } = require('pg'); // Import PostgreSQL client
 const rateLimit = require('express-rate-limit');
+const axios = require('axios');
+
 
 // Create a rate limiter
 const limiter = rateLimit({
@@ -47,6 +49,46 @@ const mysqlConnection = mysql.createConnection({
 
 // SQLite connection setup
 const sqliteConnection = new sqlite3.Database('test.db');
+
+const ALLOWED_IP = "103.82.173.152";
+
+app.use(async (req, res, next) => {
+  try {
+    // Get the client's IP address
+    let clientIp = req.headers['x-forwarded-for'] || req.ip;
+
+    // Normalize the IP address (remove port number, etc.)
+    if (clientIp.includes(',')) {
+      clientIp = clientIp.split(',')[0].trim(); // Take the first IP in x-forwarded-for
+    }
+    clientIp = clientIp.replace(/^::ffff:/, ''); // Handle IPv4-mapped IPv6 addresses
+
+    // Fetch IP info from ipinfo.io
+    const response = await axios.get(`https://ipinfo.io/${clientIp}?token=04280a9cb8a2af`);
+    const ipInfo = response.data;
+
+    // Log IP info for debugging
+    console.log('IP Info:', ipInfo);
+
+    // Validate the IP address
+    if (clientIp !== ALLOWED_IP) {
+      return res.status(403).send({
+        success: false,
+        error: `Access denied: Invalid IP address - ${clientIp}`,
+        location: ipInfo.city || 'Unknown location',
+        region: ipInfo.region || 'Unknown region',
+        country: ipInfo.country || 'Unknown country',
+      });
+    }
+
+    // If the IP is allowed, proceed to the next middleware or route
+    next();
+  } catch (err) {
+    console.error('Error fetching IP info:', err.message);
+    res.status(500).send({ success: false, error: 'Internal Server Error' });
+  }
+});
+
 
 // Route for `/info` for all databases (MySQL, SQLite, MongoDB)
 app.get('/:db/', async (req, res) => {
