@@ -49,7 +49,7 @@ const mysqlConnection = mysql.createConnection({
 
 // SQLite connection setup
 const sqliteConnection = new sqlite3.Database('test.db');
-
+/*
 const ALLOWED_IP = "103.82.173.152";
 
 app.use(async (req, res, next) => {
@@ -87,7 +87,7 @@ app.use(async (req, res, next) => {
     console.error('Error fetching IP info:', err.message);
     res.status(500).send({ success: false, error: 'Internal Server Error' });
   }
-});
+});*/
 
 
 // Route for `/info` for all databases (MySQL, SQLite, MongoDB)
