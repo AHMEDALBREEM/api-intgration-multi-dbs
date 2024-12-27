@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User API Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>User API Interface</h1>
+
+    <h2>Fetch Users</h2>
+    <button onclick="fetchUsers('mysql')">Fetch MySQL Users</button>
+    <button onclick="fetchUsers('sqlite')">Fetch SQLite Users</button>
+    <button onclick="fetchUsers('mongo')">Fetch MongoDB Users</button>
+    <button onclick="fetchUsers('postgres')">Fetch PostgreSQL Users</button>
+    <button onclick="fetchUsers('all')">Fetch All Users</button>
+
+    <h2>Insert User</h2>
+    <form id="insertForm" onsubmit="insertUser(event)">
+        <input type="text" id="insertName" placeholder="Name" required>
+        <input type="email" id="insertEmail" placeholder="Email" required>
+        <select id="insertDb" required>
+            <option value="mysql">MySQL</option>
+            <option value="sqlite">SQLite</option>
+            <option value="mongo">MongoDB</option>
+            <option value="postgres">PostgreSQL</option>
+        </select>
+        <button type="submit">Insert User</button>
+    </form>
+
+    <h2>Update User</h2>
+    <form id="updateForm" onsubmit="updateUser(event)">
+        <input type="text" id="updateId" placeholder="User  ID" required>
+        <input type="text" id="updateName" placeholder="New Name" required>
+        <input type="email" id="updateEmail" placeholder="New Email" required>
+        <select id="updateDb" required>
+            <option value="mysql">MySQL</option>
+            <option value="sqlite">SQLite</option>
+            <option value="mongo">MongoDB</option>
+            <option value="postgres">PostgreSQL</option>
+        </select>
+        <button type="submit">Update User</button>
+    </form>
+
+    <h2>Delete User</h2>
+    <form id="deleteForm" onsubmit="deleteUser(event)">
+        <input type="text" id="deleteId" placeholder="User  ID" required>
+        <select id="deleteDb" required>
+            <option value="mysql">MySQL</option>
+            <option value="sqlite">SQLite</option>
+            <option value="mongo">MongoDB</option>
+            <option value="postgres">PostgreSQL</option>
+        </select>
+        <button type="submit">Delete User</button>
+    </form>
+
+    <div class="response" id="response"></div>
+
+    <script>
+        async function fetchUsers(db) {
+            const response = await fetch(`/${db}`);
+            const data = await response.json();
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+        }
+window.fetchUsers =fetchUsers;
+        async function insertUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('insertName').value;
+            const email = document.getElementById('insertEmail').value;
+ const db = document.getElementById('insertDb').value;
+            const response = await fetch(`/${db}/insert/${name}/${email}`);
+            const data = await response.json();
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+        }
+        window.insertUser =insertUser;
+
+        async function updateUser(event) {
+            event.preventDefault();
+            const id = document.getElementById('updateId').value;
+            const name = document.getElementById('updateName').value;
+            const email = document.getElementById('updateEmail').value;
+            const db = document.getElementById('updateDb').value;
+            const response = await fetch(`/${db}/update/${id}/${name}/${email}`);
+            const data = await response.json();
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+        }
+        window.updateUser =updateUser;
+
+        async function deleteUser(event) {
+            event.preventDefault();
+            const id = document.getElementById('deleteId').value;
+            const db = document.getElementById('deleteDb').value;
+            const response = await fetch(`/${db}/delete/${id}`);
+            const data = await response.json();
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+        }
+        window.deleteUser =deleteUser;
+
+    </script>
+
+</body>
+</html>
