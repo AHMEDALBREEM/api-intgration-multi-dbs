@@ -21,7 +21,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        input[type="text"], input[type="email"] {
+        input[type="text"], input[type="email"], select {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
@@ -44,6 +44,11 @@
             padding: 10px;
             background: #e9ecef;
             border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .loading {
+            font-size: 14px;
+            color: #007bff;
         }
     </style>
 </head>
@@ -51,6 +56,7 @@
 
     <h1>User API Interface</h1>
 
+    <!-- Fetch Users -->
     <h2>Fetch Users</h2>
     <button onclick="fetchUsers('mysql')">Fetch MySQL Users</button>
     <button onclick="fetchUsers('sqlite')">Fetch SQLite Users</button>
@@ -58,10 +64,11 @@
     <button onclick="fetchUsers('postgres')">Fetch PostgreSQL Users</button>
     <button onclick="fetchUsers('all')">Fetch All Users</button>
 
+    <!-- Insert User -->
     <h2>Insert User</h2>
     <form id="insertForm" onsubmit="insertUser(event)">
-        <input type="text" id="insertName" placeholder="Name" required>
-        <input type="email" id="insertEmail" placeholder="Email" required>
+        <input type="text" id="insertName" aria-label="Name" placeholder="Name" required>
+        <input type="email" id="insertEmail" aria-label="Email" placeholder="Email" required>
         <select id="insertDb" required>
             <option value="mysql">MySQL</option>
             <option value="sqlite">SQLite</option>
@@ -71,11 +78,12 @@
         <button type="submit">Insert User</button>
     </form>
 
+    <!-- Update User -->
     <h2>Update User</h2>
     <form id="updateForm" onsubmit="updateUser(event)">
-        <input type="text" id="updateId" placeholder="User  ID" required>
-        <input type="text" id="updateName" placeholder="New Name" required>
-        <input type="email" id="updateEmail" placeholder="New Email" required>
+        <input type="text" id="updateId" aria-label="User ID" placeholder="User ID" required>
+        <input type="text" id="updateName" aria-label="New Name" placeholder="New Name" required>
+        <input type="email" id="updateEmail" aria-label="New Email" placeholder="New Email" required>
         <select id="updateDb" required>
             <option value="mysql">MySQL</option>
             <option value="sqlite">SQLite</option>
@@ -85,9 +93,10 @@
         <button type="submit">Update User</button>
     </form>
 
+    <!-- Delete User -->
     <h2>Delete User</h2>
     <form id="deleteForm" onsubmit="deleteUser(event)">
-        <input type="text" id="deleteId" placeholder="User  ID" required>
+        <input type="text" id="deleteId" aria-label="User ID" placeholder="User ID" required>
         <select id="deleteDb" required>
             <option value="mysql">MySQL</option>
             <option value="sqlite">SQLite</option>
@@ -97,48 +106,85 @@
         <button type="submit">Delete User</button>
     </form>
 
+    <!-- Response Display -->
     <div class="response" id="response"></div>
 
     <script>
+        // Reusable API Request Function
+        async function apiRequest(url) {
+            const responseBox = document.getElementById('response');
+            responseBox.innerHTML = '<span class="loading">Loading...</span>';
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                return { error: error.message };
+            }
+        }
+
+        // Fetch Users
         async function fetchUsers(db) {
-            const response = await fetch(`/${db}`);
-            const data = await response.json();
+            const data = await apiRequest(`http://localhost:3000/${db}/`);
             document.getElementById('response').innerText = JSON.stringify(data, null, 2);
         }
-window.fetchUsers =fetchUsers;
+        window.fetchUsers = fetchUsers;
+
+        // Insert User
         async function insertUser(event) {
             event.preventDefault();
-            const name = document.getElementById('insertName').value;
-            const email = document.getElementById('insertEmail').value;
- const db = document.getElementById('insertDb').value;
-            const response = await fetch(`/${db}/insert/${name}/${email}`);
-            const data = await response.json();
-            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
-        }
-        window.insertUser =insertUser;
+            const name = document.getElementById('insertName').value.trim();
+            const email = document.getElementById('insertEmail').value.trim();
+            const db = document.getElementById('insertDb').value;
 
+            if (!validateEmail(email)) {
+                alert("Invalid email format.");
+                return;
+            }
+
+            const data = await apiRequest(`http://localhost:3000/${db}/insert/${encodeURIComponent(name)}/${encodeURIComponent(email)}`);
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            document.getElementById('insertForm').reset();
+        }
+        window.insertUser = insertUser;
+
+        // Update User
         async function updateUser(event) {
             event.preventDefault();
-            const id = document.getElementById('updateId').value;
-            const name = document.getElementById('updateName').value;
-            const email = document.getElementById('updateEmail').value;
+            const id = document.getElementById('updateId').value.trim();
+            const name = document.getElementById('updateName').value.trim();
+            const email = document.getElementById('updateEmail').value.trim();
             const db = document.getElementById('updateDb').value;
-            const response = await fetch(`/${db}/update/${id}/${name}/${email}`);
-            const data = await response.json();
-            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
-        }
-        window.updateUser =updateUser;
 
+            if (!validateEmail(email)) {
+                alert("Invalid email format.");
+                return;
+            }
+
+            const data = await apiRequest(`http://localhost:3000/${db}/update/${encodeURIComponent(id)}/${encodeURIComponent(name)}/${encodeURIComponent(email)}`);
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            document.getElementById('updateForm').reset();
+        }
+        window.updateUser = updateUser;
+
+        // Delete User
         async function deleteUser(event) {
             event.preventDefault();
-            const id = document.getElementById('deleteId').value;
+            const id = document.getElementById('deleteId').value.trim();
             const db = document.getElementById('deleteDb').value;
-            const response = await fetch(`/${db}/delete/${id}`);
-            const data = await response.json();
-            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
-        }
-        window.deleteUser =deleteUser;
 
+            const data = await apiRequest(`http://localhost:3000/${db}/delete/${encodeURIComponent(id)}`);
+            document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            document.getElementById('deleteForm').reset();
+        }
+        window.deleteUser = deleteUser;
+
+        // Email Validation
+        function validateEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
     </script>
 
 </body>

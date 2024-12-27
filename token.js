@@ -1,1 +1,0 @@
-// gernrate a random number text as token and encruypte it with 10 charcter and insert it in mysql, sqlite and mongodb, postsql

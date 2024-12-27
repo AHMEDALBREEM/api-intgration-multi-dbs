@@ -6,12 +6,14 @@ const mongoose = require('mongoose');
 const { Pool } = require('pg'); // Import PostgreSQL client
 const rateLimit = require('express-rate-limit');
 const axios = require('axios');
+const cors = require('cors');
+const path = require('path');
 
 
 // Create a rate limiter
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 5, // Limit each IP to 100 requests per windowMs
+  max: 60, // Limit each IP to 100 requests per windowMs
   message: { error: 'Too many requests, please try again later.' },
 });
 
@@ -20,8 +22,11 @@ const app = express();
 const port = 3000;
 
 // Middleware to parse JSON request bodies
-app.use(express.json(),limiter);
-
+app.use(express.json(),limiter,cors(),express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+  console.log(`Request received: ${req.method} ${req.url}`);
+  next();
+});
 
 const pgPool = new Pool({
   user: 'postgres',        // Replace with your PostgreSQL username
@@ -49,29 +54,23 @@ const mysqlConnection = mysql.createConnection({
 
 // SQLite connection setup
 const sqliteConnection = new sqlite3.Database('test.db');
-/*
-const ALLOWED_IP = "103.82.173.152";
+
+// router ip distrubtutor and port assigned ip direct to pc
+const ALLOWED_IP = ["103.82.173.157","103.82.173.160"];
 
 app.use(async (req, res, next) => {
   try {
     // Get the client's IP address
-    let clientIp = req.headers['x-forwarded-for'] || req.ip;
-
-    // Normalize the IP address (remove port number, etc.)
-    if (clientIp.includes(',')) {
-      clientIp = clientIp.split(',')[0].trim(); // Take the first IP in x-forwarded-for
-    }
-    clientIp = clientIp.replace(/^::ffff:/, ''); // Handle IPv4-mapped IPv6 addresses
-
+    let clientIp ;
     // Fetch IP info from ipinfo.io
-    const response = await axios.get(`https://ipinfo.io/${clientIp}?token=04280a9cb8a2af`);
+    const response = await axios.get(`https://ipinfo.io/?token=04280a9cb8a2af`);
     const ipInfo = response.data;
 
     // Log IP info for debugging
-    console.log('IP Info:', ipInfo);
-
+    console.log('IP Info:', ipInfo.ip);
+    clientIp = ipInfo.ip;
     // Validate the IP address
-    if (clientIp !== ALLOWED_IP) {
+    if (!ALLOWED_IP.includes(clientIp)) {
       return res.status(403).send({
         success: false,
         error: `Access denied: Invalid IP address - ${clientIp}`,
@@ -87,7 +86,7 @@ app.use(async (req, res, next) => {
     console.error('Error fetching IP info:', err.message);
     res.status(500).send({ success: false, error: 'Internal Server Error' });
   }
-});*/
+});
 
 
 // Route for `/info` for all databases (MySQL, SQLite, MongoDB)
@@ -384,8 +383,13 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
-// Route for the root URL
+
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Route for the root URL
+app.get('/api/doces', (req, res) => {
   res.status(200).send(
     {
       "message": "Welcome to the User API!",
