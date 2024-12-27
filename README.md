@@ -50,7 +50,7 @@ node server.js
 
 Access the API at `http://localhost:3000`.
 
-## API Endpoints
+## API Endpoints (with api key private gerearte by admin for dierct end-points)
 
 ### Fetch Users
 **Description:** Fetch all users from the specified database.
@@ -121,5 +121,5 @@ db.close();
 ### Server Implementation (`server.js`)
 The server is built using Express and connects to multiple databases. It includes middleware for rate limiting, CORS, and JSON parsing. The server listens on port 3000 and provides various endpoints for user management.
 
-### Frontend Interface (`public/index.html`)
+### Frontend Interface (`public/index.html`)(without api key but with ip allowed to login if reached to the index)
 The frontend interface allows users to interact with the API through buttons and forms for fetching, inserting, updating, and deleting users. It includes basic validation for email input and displays responses from the API.
