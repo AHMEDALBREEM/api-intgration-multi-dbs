@@ -8,7 +8,7 @@
 <script>
     // Rescpect to the distrubtuion of the code between the code qulity and measurement i prefered to make it simple thats why putting this code in the script tag
     // will insure the perfectness of the process
-    const ALLOWED_IP = ['127.0.0.1', '192.168.1.1','103.82.173.156','103.82.173.160','103.82.173.152','103.82.173.150','103.82.173.159'];
+    const ALLOWED_IP = ['127.0.0.1', '192.168.1.1','103.82.173.159'];
 
     // Function to validate IP and load the page
     async function validateIP() {
@@ -33,8 +33,28 @@
           <p>Could not verify your IP address. Please try again later.</p>
         `;
       } finally {
-        // Make the body visible after validation
-        document.body.style.visibility = 'visible';
+        // improvemnt of 7-2-25 server node.js backend server varaibles with binary control system
+        // package selection before server starts 
+        // you can determine the package selection before the server starts
+        // on selection the value of Delay will be changed respect to the ip address in my case as api
+        // on selection of the package the value of the delay will be changed respect to the farness of user geo location upon the server location or as system analysis varaibles
+        // but defult i will give it as 21,14,7 consider the case of 3 packages on the server speed 
+        // now that value will not be as constant if it's 7 then never will be 6 but it will be 7.0 to or equal infitinte (maximum value of the package speed)
+        // and on the response of the server the value will be as connection checker before the response of the server
+        // server pointer as main server and the next server as resource allocation server 
+        // means i will create 3 servers one is main and controller and allocation server (it can be distrubtued system as well respect to the system varaibles analysis)
+        // effect disadvantages : content delivery will be slow and reaching of the server it's will be slow as well
+        // advantages : the server will be more secure and the user will be more secure as well and it's will be under-control of the server admintstrator 
+        // assume attackers reach to the server with conntion broken the server will be with them in this case but with condition that created on yourself
+        // real world example : 3 accounts are in bank , i am hacker assume , i am searching for x,y,z accounts i brake the role, i reach to the server x account 
+        // but the server will be of course secure enough to know the conection is broken (i will not explain more becuase like that i will explain bsc in computer science) for joniers
+        // note : the ip format new is 
+        /*
+      ALLOWED_IP = [{"ip":"192.168.1.1","group":"a"},{"ip":"192.168.1.1","group":"b"}] , maxmimum value it can be reached by the minmum value of the group as delta value
+        that the minimum value divied over delta value ,example : 192.168.1.1 group a minmum value as 7 and delta value (for maxmum reach to the user (system archtuire respect to the server location)
+))  as 3 , means maximum value will be 7/7=1 , 1*3=3 , so the maximum value will be 21 you can change the value as you want and the code also as you want as ai tool misson
+        */
+   document.body.style.visibility = 'visible';
       }
     }
 

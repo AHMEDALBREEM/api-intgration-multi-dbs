@@ -67,7 +67,7 @@ const mysqlConnection = mysql.createConnection({
 const sqliteConnection = new sqlite3.Database('test.db');
 
 // router ip distrubtutor and port assigned ip direct to pc
-const ALLOWED_IP = ["103.82.173.156","103.82.173.160","103.82.173.152","103.82.173.150","103.82.173.159"];
+const ALLOWED_IP = ["103.82.173.154","103.82.173.160","103.82.173.154","103.82.173.150","103.82.173.159"];
 const SECRET_KEY = crypto.randomBytes(32).toString('base64url');  
 
 app.get('/generate-token/:dbtype', async (req, res) => {
